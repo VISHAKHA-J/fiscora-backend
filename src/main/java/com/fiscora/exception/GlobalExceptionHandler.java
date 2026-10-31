@@ -36,14 +36,15 @@ public class GlobalExceptionHandler {
                         "Invalid request body. Check the field values, for example the type."));
     }
 
-    // Duplicate names, or something that is still in use -> 409
+    // Duplicate names, duplicate budget, or something still in use -> 409
     @ExceptionHandler({
             UsernameAlreadyExistsException.class,
             EmailAlreadyExistsException.class,
             AccountNameAlreadyExistsException.class,
             CategoryNameAlreadyExistsException.class,
             AccountHasTransactionsException.class,
-            CategoryHasTransactionsException.class
+            CategoryHasTransactionsException.class,
+            BudgetAlreadyExistsException.class
     })
     public ResponseEntity<Map<String, Object>> handleConflict(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -53,11 +54,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
             AccountNotFoundException.class,
             CategoryNotFoundException.class,
-            TransactionNotFoundException.class
+            TransactionNotFoundException.class,
+            BudgetNotFoundException.class
     })
     public ResponseEntity<Map<String, Object>> handleNotFound(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(baseBody(HttpStatus.NOT_FOUND, ex.getMessage()));
+    }
+
+    // Budget on an income category -> 400
+    @ExceptionHandler(InvalidBudgetCategoryException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidBudgetCategory(InvalidBudgetCategoryException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(baseBody(HttpStatus.BAD_REQUEST, ex.getMessage()));
     }
 
     // Wrong username or password on login -> 401 (same message for both on purpose)

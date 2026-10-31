@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fiscora.exception.CategoryHasTransactionsException;
 import com.fiscora.repository.TransactionRepository;
+import com.fiscora.repository.BudgetRepository;
 
 import java.util.List;
 
@@ -21,11 +22,14 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final TransactionRepository transactionRepository;
+    private final BudgetRepository budgetRepository;
 
     public CategoryService(CategoryRepository categoryRepository,
-                           TransactionRepository transactionRepository) {
+                           TransactionRepository transactionRepository,
+                           BudgetRepository budgetRepository) {
         this.categoryRepository = categoryRepository;
         this.transactionRepository = transactionRepository;
+        this.budgetRepository = budgetRepository;
     }
 
     @Transactional
@@ -80,6 +84,7 @@ public class CategoryService {
                     "This category has " + count + (count == 1 ? " transaction" : " transactions")
                             + ", so it can't be deleted. Delete or move them first.");
         }
+        budgetRepository.deleteByCategory_CategoryId(categoryId);
         categoryRepository.delete(category);
     }
 
